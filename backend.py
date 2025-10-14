@@ -95,13 +95,13 @@ async def chat(request: Request):
                    "- Пиши строго в формате:\n\nA: [текст]\n\nB: [текст]\n\n"
                    "- Без вводных фраз, без пояснений, только A и B.\n\n"
                    "Документ:\n{document}"),
-        ("human", "Сгенерируй A/B-тесты на основе документации.")
+        ("human", "{user_message}")
     ])
 
     chain = prompt | llm | StrOutputParser()
 
     try:
-        response = chain.invoke({"document": document_text})
+        response = chain.invoke({"document": document_text, "user_message": user_message})
         return {"response": response}
     except Exception as e:
         return {"response": f"❌ Ошибка GigaChat: {str(e)}"}
