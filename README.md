@@ -46,4 +46,4 @@ pip install -r requirements.txt
 ```
 uvicorn backend:app --reload
 ```
-![alt text](image.png)
+![alt text](image-1.png)
