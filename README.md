@@ -37,7 +37,12 @@ DOCUAI+/
 ```
 
 ## Установка зависимостей
-'''
+```
 pip install -r requirements.txt
+```
 
-'''
+## Запуск
+
+```
+uvicorn backend:app --reload
+```
