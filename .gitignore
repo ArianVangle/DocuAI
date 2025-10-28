@@ -1,7 +1,0 @@
-/other
-/venv
-/__pycache__
-/uploads
-.env
-.gitignore
-spec.txt
