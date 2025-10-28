@@ -1,0 +1,897 @@
+<!-- <!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DocuAI — Анализ документов</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    :root {
+      --ai-color: #8a6bff;
+      --user-color: #444654;
+      --bg-dark: #0f0f11;
+      --bg-card: #1a1a1d;
+      --text-primary: #e6e6e6;
+      --border: #343541;
+      --success: #2ea043;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f11, #1a1a2e);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      background: linear-gradient(90deg, #8a6bff, #5d5dff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #a0a0b0;
+      font-size: 1rem;
+    }
+
+    .upload-box {
+      background: var(--bg-card);
+      border: 1px dashed #444654;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+      border-color: var(--ai-color);
+      background: #1e1e25;
+    }
+
+    .upload-box i {
+      font-size: 2.5rem;
+      color: var(--ai-color);
+      margin-bottom: 12px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .upload-btn {
+      background: linear-gradient(90deg, #8a6bff, #5d5dff);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(138, 107, 255, 0.3);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(138, 107, 255, 0.4);
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--success);
+      min-height: 20px;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      display: flex;
+      gap: 16px;
+      padding: 18px;
+      background: var(--bg-card);
+      border-radius: 18px;
+      max-width: 90%;
+      animation: fadeIn 0.3s ease-out;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: #2a2b32;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .avatar.user {
+      background: var(--user-color);
+      color: white;
+    }
+
+    .avatar.bot {
+      background: linear-gradient(135deg, #8a6bff, #5d5dff);
+      color: white;
+    }
+
+    .message-content {
+      word-break: break-word;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+    }
+
+    .input-area:focus-within {
+      border-color: var(--ai-color);
+      box-shadow: 0 0 0 2px rgba(138, 107, 255, 0.3);
+    }
+
+    #user-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      padding: 12px 0;
+    }
+
+    #user-input::placeholder {
+      color: #666777;
+    }
+
+    .send-btn {
+      background: var(--ai-color);
+      color: white;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: #7a5bff;
+    }
+
+    .typing {
+      color: #a0a0b0;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .message {
+        max-width: 95%;
+        padding: 14px;
+      }
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-file-contract"></i> DocuAI</h1>
+      <p>Загрузите документ и задавайте вопросы — AI проанализирует его за вас</p>
+    </header>
+
+    <div class="upload-box">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <div class="file-input-wrapper">
+        <button class="upload-btn">Выберите файл (.txt, .pdf, .docx)</button>
+        <input type="file" id="file-input" accept=".txt,.pdf,.docx">
+      </div>
+      <div id="status"></div>
+    </div>
+
+    <div class="chat-container" id="chat"></div>
+
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Введите вопрос по документу..." autocomplete="off">
+      <button class="send-btn" onclick="sendMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat");
+    const statusDiv = document.getElementById("status");
+    const fileInput = document.getElementById("file-input");
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        const fileName = fileInput.files[0].name;
+        statusDiv.textContent = `Выбран файл: ${fileName}`;
+        statusDiv.style.color = "#8a6bff";
+      }
+    });
+
+    document.getElementById("file-input").closest(".file-input-wrapper").onsubmit = (e) => e.preventDefault();
+
+    document.getElementById("file-input").closest(".file-input-wrapper").addEventListener("click", () => {
+      // Клик по кнопке уже триггерит input, ничего не нужно
+    });
+
+    // Обработка загрузки
+    document.querySelector(".upload-btn").closest(".file-input-wrapper").addEventListener("click", () => {
+      // Кнопка внутри wrapper — input уже обрабатывает выбор
+    });
+
+    document.getElementById("file-input").addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      statusDiv.textContent = "Загрузка...";
+      statusDiv.style.color = "#8a6bff";
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          statusDiv.textContent = "✅ Документ успешно загружен!";
+          statusDiv.style.color = "#2ea043";
+          chatBox.innerHTML = ""; // очистить чат
+        } else {
+          throw new Error(data.detail || "Ошибка сервера");
+        }
+      } catch (err) {
+        statusDiv.textContent = "❌ " + err.message;
+        statusDiv.style.color = "#ff6b6b";
+      }
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Показываем сообщение пользователя
+      appendMessage("user", message);
+      input.value = "";
+      input.disabled = true;
+
+      // Показываем "печатает..."
+      const typingEl = document.createElement("div");
+      typingEl.className = "message bot typing";
+      typingEl.innerHTML = `
+        <div class="avatar bot"><i class="fas fa-brain"></i></div>
+        <div class="message-content">Думаю...</div>
+      `;
+      chatBox.appendChild(typingEl);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+
+        // Удаляем "печатает..."
+        chatBox.removeChild(typingEl);
+
+        if (res.ok) {
+          appendMessage("bot", data.response);
+        } else {
+          appendMessage("bot", "Произошла ошибка: " + (data.detail || "сервер недоступен"));
+        }
+      } catch (err) {
+        chatBox.removeChild(typingEl);
+        appendMessage("bot", "❌ Не удалось подключиться к серверу.");
+      }
+
+      input.disabled = false;
+      input.focus();
+    }
+
+    function appendMessage(role, text) {
+      const isUser = role === "user";
+      const div = document.createElement("div");
+      div.className = `message ${isUser ? "user" : "bot"}`;
+      div.innerHTML = `
+        <div class="avatar ${isUser ? "user" : "bot"}">
+          <i class="fas ${isUser ? "fa-user" : "fa-robot"}"></i>
+        </div>
+        <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
+      `;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Enter для отправки
+    document.getElementById("user-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Фокус на поле ввода при загрузке
+    window.onload = () => {
+      document.getElementById("user-input").focus();
+    };
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DocuAI — Многоагентный анализ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    :root {
+      --ai-color: #8a6bff;
+      --user-color: #444654;
+      --bg-dark: #0f0f11;
+      --bg-card: #1a1a1d;
+      --text-primary: #e6e6e6;
+      --border: #343541;
+      --success: #2ea043;
+      --thinking-bg: #202028;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f11, #1a1a2e);
+      background-color: #1a1a1d;
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      background: linear-gradient(90deg, #8a6bff, #5d5dff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #a0a0b0;
+      font-size: 1rem;
+    }
+
+    .upload-box {
+      background: var(--bg-card);
+      border: 1px dashed #444654;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+      border-color: var(--ai-color);
+      background: #1e1e25;
+    }
+
+    .upload-box i {
+      font-size: 2.5rem;
+      color: var(--ai-color);
+      margin-bottom: 12px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .upload-btn {
+      background: linear-gradient(90deg, #8a6bff, #5d5dff);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(138, 107, 255, 0.3);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(138, 107, 255, 0.4);
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--success);
+      min-height: 20px;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      display: flex;
+      gap: 16px;
+      padding: 18px;
+      background: var(--bg-card);
+      border-radius: 18px;
+      max-width: 90%;
+      animation: fadeIn 0.3s ease-out;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: #2a2b32;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .thinking-section {
+      background: var(--thinking-bg);
+      border-radius: 14px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .thinking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .thinking-header i {
+      transition: transform 0.3s ease;
+    }
+
+    .thinking-header.rotated i {
+      transform: rotate(180deg);
+    }
+
+    .thinking-steps {
+      padding: 0 16px 16px;
+      display: none;
+    }
+
+    .thinking-steps.show {
+      display: block;
+    }
+
+    .thinking-step {
+      padding: 8px 0;
+      font-size: 0.92em;
+      color: #b0b0c0;
+      border-bottom: 1px solid #2c2c3a;
+    }
+
+    .thinking-step:last-child {
+      border-bottom: none;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .avatar.user {
+      background: var(--user-color);
+      color: white;
+    }
+
+    .avatar.bot {
+      background: linear-gradient(135deg, #8a6bff, #5d5dff);
+      color: white;
+    }
+
+    .message-content {
+      word-break: break-word;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+    }
+
+    .input-area:focus-within {
+      border-color: var(--ai-color);
+      box-shadow: 0 0 0 2px rgba(138, 107, 255, 0.3);
+    }
+
+    #user-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      padding: 12px 0;
+    }
+
+    #user-input::placeholder {
+      color: #666777;
+    }
+
+    .send-btn {
+      background: var(--ai-color);
+      color: white;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: #7a5bff;
+    }
+
+    .typing {
+      color: #a0a0b0;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .message {
+        max-width: 95%;
+        padding: 14px;
+      }
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-file-contract"></i> DocuAI</h1>
+      <p>Многоагентный анализ документов с прозрачными размышлениями</p>
+    </header>
+
+    <div class="upload-box">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <div class="file-input-wrapper">
+        <button class="upload-btn">Выберите файл (.txt, .pdf, .docx)</button>
+        <input type="file" id="file-input" accept=".txt,.pdf,.docx">
+      </div>
+      <div id="status"></div>
+    </div>
+
+    <div class="chat-container" id="chat"></div>
+
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Введите запрос по документу..." autocomplete="off">
+      <button class="send-btn" onclick="sendMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat");
+    const statusDiv = document.getElementById("status");
+    const fileInput = document.getElementById("file-input");
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        const fileName = fileInput.files[0].name;
+        statusDiv.textContent = `Выбран файл: ${fileName}`;
+        statusDiv.style.color = "#8a6bff";
+      }
+    });
+
+    document.getElementById("file-input").addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      statusDiv.textContent = "Загрузка...";
+      statusDiv.style.color = "#8a6bff";
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          statusDiv.textContent = "✅ Документ успешно загружен!";
+          statusDiv.style.color = "#2ea043";
+          chatBox.innerHTML = "";
+        } else {
+          throw new Error(data.detail || "Ошибка сервера");
+        }
+      } catch (err) {
+        statusDiv.textContent = "❌ " + err.message;
+        statusDiv.style.color = "#ff6b6b";
+      }
+    });
+
+  async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
+    input.value = "";
+    input.disabled = true;
+
+    // Создаём контейнер для размышлений (будет справа от ответа)
+    const thinkingContainer = document.createElement("div");
+    thinkingContainer.style.position = "relative";
+    thinkingContainer.style.marginTop = "10px";
+
+    // Добавляем его под сообщением пользователя
+    chatBox.appendChild(thinkingContainer);
+
+    try {
+      // Шаг 1: Отправляем запрос
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Удаляем временный контейнер
+      chatBox.removeChild(thinkingContainer);
+
+      // Показываем все шаги по одному с анимацией
+      if (data.steps && data.steps.length > 0) {
+        for (let i = 0; i < data.steps.length; i++) {
+          const step = data.steps[i];
+          
+          // Создаём элемент шага
+          const stepEl = document.createElement("div");
+          stepEl.className = "message bot thinking-step";
+          stepEl.innerHTML = `
+            <div class="avatar bot" style="background:#4a4a6a">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="message-content">
+              <strong>${step.agent}:</strong> ${step.message}
+            </div>
+          `;
+          
+          // Анимация появления
+          stepEl.style.opacity = "0";
+          stepEl.style.transform = "translateX(-20px)";
+          stepEl.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+          
+          chatBox.appendChild(stepEl);
+          
+          // Задержка для эффекта "поочерёдного появления"
+          await new Promise(r => setTimeout(r, 500));
+          
+          // Показываем
+          stepEl.style.opacity = "1";
+          stepEl.style.transform = "translateX(0)";
+          
+          // Прокрутка вниз
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }
+
+      // Показываем финальный ответ
+      appendMessage("bot", data.final_answer);
+
+    } catch (err) {
+      // Очищаем контейнер
+      chatBox.removeChild(thinkingContainer);
+      appendMessage("bot", "❌ Ошибка подключения к серверу.");
+    }
+
+    input.disabled = false;
+    input.focus();
+  }
+
+
+    function appendBotResponse(data) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message bot";
+
+      let contentHtml = `<div class="message-content">${data.final_answer.replace(/\n/g, '<br>')}</div>`;
+
+      // Добавляем блок размышлений, если есть шаги
+      if (data.steps && data.steps.length > 0) {
+        let stepsHtml = '';
+        data.steps.forEach(step => {
+          stepsHtml += `<div class="thinking-step"><strong>${step.agent}:</strong> ${step.message}</div>`;
+        });
+
+        contentHtml += `
+          <div class="thinking-section">
+            <div class="thinking-header" onclick="toggleThinking(this)">
+              <span>🧠 Размышления системы</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="thinking-steps">
+              ${stepsHtml}
+            </div>
+          </div>
+        `;
+      }
+
+      messageDiv.innerHTML = `
+        <div class="avatar bot">
+          <i class="fas fa-robot"></i>
+        </div>
+        ${contentHtml}
+      `;
+
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function toggleThinking(header) {
+      const steps = header.nextElementSibling;
+      const icon = header.querySelector('i');
+      steps.classList.toggle('show');
+      header.classList.toggle('rotated');
+    }
+
+    function appendMessage(role, text) {
+      const isUser = role === "user";
+      const div = document.createElement("div");
+      div.className = `message ${isUser ? "user" : "bot"}`;
+      div.innerHTML = `
+        <div class="avatar ${isUser ? "user" : "bot"}">
+          <i class="fas ${isUser ? "fa-user" : "fa-robot"}"></i>
+        </div>
+        <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
+      `;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    window.onload = () => {
+      document.getElementById("user-input").focus();
+    };
+  </script>
+</body>
+</html> 

@@ -1,0 +1,6 @@
+/other
+/venv
+/__pycache__
+/uploads
+.env
+spec.txt
