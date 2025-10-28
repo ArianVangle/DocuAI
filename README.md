@@ -2,6 +2,10 @@
 
 DocuAI+ — это интеллектуальный ассистент для анализа и обработки документов с использованием современных языковых моделей. Система позволяет загружать документы, задавать уточняющие вопросы и получать структурированные ответы на основе содержимого файлов.
 
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-black?logo=fastapi)](https://fastapi.tiangolo.com)
+[![GigaChat](https://img.shields.io/badge/GigaChat-Lite%20%7C%20Pro-purple)](https://developers.sber.ru/docs/ru/gigachat)
+
 ## Основные возможности
 
 - Загрузка и обработка текстовых документов (PDF, DOCX, TXT и др.)
@@ -11,3 +15,15 @@ DocuAI+ — это интеллектуальный ассистент для а
 - Интерактивный режим через консоль с использованием `input()`
 
 ## Структура проекта
+docuai+/
+│
+├── main.py # Точка входа в приложение
+├── agents/ # Модули агентов для обработки документов
+│ ├── base_agent.py
+│ └── analysis_agent.py
+├── document_loader.py # Загрузка и предварительная обработка документов
+├── prompt_handler.py # Обработка и передача пользовательского промпта агентам
+├── config.py # Настройки API и параметров модели
+└── README.md # Данный файл
+
+
