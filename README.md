@@ -4,7 +4,7 @@ DocuAI+ — это интеллектуальный ассистент для а
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-black?logo=fastapi)](https://fastapi.tiangolo.com)
-[![GigaChat](https://img.shields.io/badge/GigaChat-Lite%20%7C%20Pro-purple)](https://developers.sber.ru/docs/ru/gigachat)
+[![GigaChat](https://img.shields.io/badge/GigaChat-Lite%20%7C%20Pro-purple)](https://developers.sber.ru/docs)
 
 ## Основные возможности
 
@@ -15,6 +15,7 @@ DocuAI+ — это интеллектуальный ассистент для а
 - Интерактивный режим через консоль с использованием `input()`
 
 ## Структура проекта
+
 docuai+/
 │
 ├── main.py # Точка входа в приложение
