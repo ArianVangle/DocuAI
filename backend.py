@@ -9,10 +9,14 @@ from langchain_gigachat import GigaChat
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 from agent_orchestrator import route_query
 from utils.sanitizer import sanitize_extracted_text, is_text_safe
 
+# Для эмбеддингов на русском
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Загружаем переменные окружения
 load_dotenv()
@@ -28,7 +32,9 @@ STATIC_DIR.mkdir(exist_ok=True)
 # Монтируем статику
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Глобальные переменные
 document_text = ""
+vectorstore = None  # ← НОВОЕ: векторное хранилище для RAG
 
 # Инициализация GigaChat
 llm = GigaChat(
@@ -44,7 +50,7 @@ async def get_chat():
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    global document_text
+    global document_text, vectorstore  # ← ДОБАВЛЕНО vectorstore
     if not file.filename:
         raise HTTPException(status_code=400, detail="Файл не выбран")
 
@@ -68,29 +74,45 @@ async def upload_file(file: UploadFile = File(...)):
 
         docs = loader.load()
         document_text = "\n\n".join([doc.page_content for doc in docs])
-            # === САНИТАЙЗАЦИЯ ===
+        
+        # === САНИТАЙЗАЦИЯ ===
         if not is_text_safe(document_text):
             raise ValueError("Файл содержит недопустимый контент")
     
         sanitized_text = sanitize_extracted_text(document_text)
     
-        if len(sanitized_text) < 10:  # Слишком короткий после очистки
+        if len(sanitized_text) < 10:
             raise ValueError("Файл не содержит допустимого текста")
 
-        # Ограничиваем размер (GigaChat имеет лимит контекста ~8K токенов)
-        if len(document_text) > 8000:
-            document_text = document_text[:8000] + "... (обрезано для укладки в контекст)"
+        document_text = sanitized_text  # ← ИСПОЛЬЗУЕМ ОЧИЩЕННЫЙ ТЕКСТ
 
-        return {"message": f"✅ Документ '{file.filename}' загружен и готов к анализу."}
+        # === СОЗДАНИЕ RAG (НОВОЕ) ===
+        # Разбиваем текст на чанки
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=50,
+            separators=["\n\n", "\n", ". ", " ", ""]
+        )
+        chunks = text_splitter.split_text(document_text)
+
+        # Создаём эмбеддинги для русского языка
+        embeddings = HuggingFaceEmbeddings(
+            model_name="cointegrated/rubert-tiny2",
+            model_kwargs={"device": "cpu"}
+        )
+
+        # Создаём векторное хранилище
+        vectorstore = FAISS.from_texts(chunks, embeddings)
+
+        return {"message": f"✅ Документ '{file.filename}' загружен. RAG активирован."}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка обработки файла: {str(e)}")
 
 
-# В эндпоинте /chat
 @app.post("/chat")
 async def chat(request: Request):
-    global document_text
+    global document_text, vectorstore  # ← ПЕРЕДАЁМ vectorstore
     body = await request.json()
     user_message = body.get("message", "").strip()
 
@@ -100,8 +122,8 @@ async def chat(request: Request):
         return {"response": "💬 Пожалуйста, введите запрос."}
 
     try:
-        # Запускаем многоагентную систему!
-        final_response = route_query(document_text, user_message)
+        # Передаём и текст, и vectorstore в оркестратор
+        final_response = route_query(document_text, user_message, vectorstore)
         return final_response
     except Exception as e:
         return {"response": f"❌ Ошибка агентов: {str(e)}"}
