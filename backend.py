@@ -11,6 +11,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
 from dotenv import load_dotenv
 from agent_orchestrator import route_query
+from utils.sanitizer import sanitize_extracted_text, is_text_safe
 
 
 # Загружаем переменные окружения
@@ -67,6 +68,14 @@ async def upload_file(file: UploadFile = File(...)):
 
         docs = loader.load()
         document_text = "\n\n".join([doc.page_content for doc in docs])
+            # === САНИТАЙЗАЦИЯ ===
+        if not is_text_safe(document_text):
+            raise ValueError("Файл содержит недопустимый контент")
+    
+        sanitized_text = sanitize_extracted_text(document_text)
+    
+        if len(sanitized_text) < 10:  # Слишком короткий после очистки
+            raise ValueError("Файл не содержит допустимого текста")
 
         # Ограничиваем размер (GigaChat имеет лимит контекста ~8K токенов)
         if len(document_text) > 8000:
