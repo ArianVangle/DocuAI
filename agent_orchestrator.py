@@ -59,7 +59,7 @@ def route_with_llm(user_query: str) -> dict:
             "reasoning": f"Ошибка роутинга — используется анализ по умолчанию. ({str(e)})"
         }
 
-def route_query(document_text: str, user_query: str) -> dict:
+def route_query(document_text: str, user_query: str, vectorstore=None) -> dict:
     """
     Основная функция оркестратора.
     Возвращает: {"steps": [...], "final_answer": "..."}
@@ -94,7 +94,7 @@ def route_query(document_text: str, user_query: str) -> dict:
             final_answer = generate_ab_tests(document_text, user_query)
             
         elif agent_name == "technical_reviewer":
-            final_answer = answer_technical_question(document_text, user_query)
+            final_answer = answer_technical_question(document_text, user_query, vectorstore)
             
         elif agent_name == "document_analyst":
             analysis = analyze_document(document_text, user_query)
