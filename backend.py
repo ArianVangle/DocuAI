@@ -77,9 +77,9 @@ async def upload_file(file: UploadFile = File(...)):
         if len(sanitized_text) < 10:  # Слишком короткий после очистки
             raise ValueError("Файл не содержит допустимого текста")
 
-        # Ограничиваем размер (GigaChat имеет лимит контекста ~8K токенов)
-        if len(document_text) > 8000:
-            document_text = document_text[:8000] + "... (обрезано для укладки в контекст)"
+        # # Ограничиваем размер (GigaChat имеет лимит контекста ~8K токенов)
+        # if len(document_text) > 8000:
+        #     document_text = document_text[:8000] + "... (обрезано для укладки в контекст)"
 
         return {"message": f"✅ Документ '{file.filename}' загружен и готов к анализу."}
 

@@ -12,7 +12,7 @@ def answer_technical_question(document_text: str, question: str) -> str:
     )
     
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "Ты — технический эксперт. Отвечай ТОЛЬКО на основе документа. Если информации нет — скажи об этом.\n\nДокумент:\n{document}"),
+        ("system", "Ты — технический эксперт. Отвечай на основе документа. Если информации нет — скажи об этом.\n\nДокумент:\n{document}"),
         ("human", "{question}")
     ])
     
