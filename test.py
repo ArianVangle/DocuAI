@@ -1,6 +1,7 @@
 # accuracy_test.py
 import os
 import sys
+import time
 from pathlib import Path
 
 # Добавляем корень проекта в PYTHONPATH
@@ -96,35 +97,37 @@ def check_answer(response: str, expected, test_type: str) -> bool:
     return False
 
 def run_accuracy_test():
-    print("🔍 Запуск тестов точности извлечения информации...\n")
-    
-    # Загрузка и обработка документа
-    if not os.path.exists(PDF_PATH):
-        print(f"❌ Ошибка: файл {PDF_PATH} не найден.")
-        return
-    
-    try:
-        document_text = extract_text_from_pdf(PDF_PATH)
-        print(f"✅ Документ загружен. Размер: {len(document_text)} символов.\n")
-    except Exception as e:
-        print(f"❌ Ошибка при загрузке документа: {e}")
-        return
-
-    # Прогон тестов
-    passed = 0
-    total = len(TEST_CASES)
-
-    for i, case in enumerate(TEST_CASES, 1):
-        query = case["query"]
-        print(f"[{i}/{total}] Запрос: {query}")
+    # Открываем файл test.txt для записи
+    with open("test.txt", "w", encoding="utf-8") as f:
+        f.write("🔍 Запуск тестов точности извлечения информации...\n\n")
         
+        # Загрузка и обработка документа
+        if not os.path.exists(PDF_PATH):
+            f.write(f"❌ Ошибка: файл {PDF_VPATH} не найден.\n")
+            return
         
-            # Вызов агента technical_reviewer (как в оркестраторе)
-        response = answer_technical_question(document_text, query)
-        print(response)
+        try:
+            document_text = extract_text_from_pdf(PDF_PATH)
+            f.write(f"✅ Документ загружен. Размер: {len(document_text)} символов.\n\n")
+        except Exception as e:
+            f.write(f"❌ Ошибка при загрузке документа: {e}\n")
+            return
 
+        # Прогон тестов
+        passed = 0
+        total = len(TEST_CASES)
 
-
+        for i, case in enumerate(TEST_CASES, 1):
+            query = case["query"]
+            f.write(f"[{i}/{total}] Запрос: {query}\n")
+            
+            # Замер времени
+            start_time = time.time()
+            response = answer_technical_question(document_text, query)
+            elapsed_time = time.time() - start_time
+            
+            f.write(f"    Ответ ({elapsed_time:.2f} сек): {response}\n")
+            f.write("\n")
 
 if __name__ == "__main__":
     run_accuracy_test()
