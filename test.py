@@ -103,7 +103,7 @@ def run_accuracy_test():
         
         # Загрузка и обработка документа
         if not os.path.exists(PDF_PATH):
-            f.write(f"❌ Ошибка: файл {PDF_VPATH} не найден.\n")
+            f.write(f"❌ Ошибка: файл {PDF_PATH} не найден.\n")
             return
         
         try:
