@@ -39,6 +39,9 @@ DOCUAI+/
 ├── test.py # тесты
 ├── test_marketing.py # тесты рекламы
 ├── marketing_test.txt # логи тестов рекламы
+├── sanitizer_test.py # тесты санитайзера
+├── sanitizer_test.txt # логи тестов санитайзера
+
 ```
 
 ## Установка зависимостей
