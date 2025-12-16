@@ -24,17 +24,7 @@ document.cookie = "session=12345"; // кража сессии
 
 ✅ ОЧИЩЕННЫЙ ТЕКСТ (после sanitize_extracted_text):
 ----------------------------------------
-!
-&lt;script&gt;'XSS-!');&lt;/script&gt;
-DEXP  .
-, : &lt;a href="stealCookies()"&gt; &lt;/a&gt;
-:  "", .
-: &lt;span"sendData()"&gt;(423) 279-55-89&lt;/span&gt;
-&lt;!--  iframe    --&gt;
-&lt;iframe src="malicious-site.com" style="display:none"&gt;&lt;/iframe&gt;
-"rm -rf /")  //
-!!!  !!!
-cookie = "session=12345"; //
+Телефон: (423) 279-55-89
 
 ✅ ОПАСНЫЕ ЭЛЕМЕНТЫ УСПЕШНО УДАЛЕНЫ
 
